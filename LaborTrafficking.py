@@ -17,8 +17,7 @@ def format_number(num):
     return "{:,}".format(num)
 
 # Load the shapefile
-shapefile_path = '~/Downloads/tl_2023_us_county/tl_2023_us_county.shp'
-gdf = gpd.read_file(shapefile_path)
+# TODO: Load shapefile into script.
 
 # Normalize county names to lowercase
 gdf['NAME'] = gdf['NAME'].str.lower()
@@ -27,12 +26,10 @@ gdf['NAME'] = gdf['NAME'].str.lower()
 gdf['NAME_DISPLAY'] = gdf['NAME'].str.title()
 
 # Load the CSV file
-csv_file_path = '~/Downloads/southfinal2.csv'
-df_locations = pd.read_csv(csv_file_path)
+# TODO: Load file with locations of border crossing and major cities
 
 # Load the feather file
-feather_file_path = '~/Downloads/combined_pixel_counts.feather'
-df_crops = pd.read_feather(feather_file_path)
+# TODO: Load pixel counts file from CroplandCROS application
 
 # county names to lowercase
 df_crops['County'] = df_crops['County'].str.lower()
@@ -62,8 +59,10 @@ def create_ring(lat, lon, inner_radius_km, outer_radius_km, num_points=360):
 
 # Function to read crop pixels from TIF and VAT DBF files
 def read_crop_pixels(state_name, county_name, selected_crop):
-    tif_path = os.path.expanduser(f'~/Downloads/CountyGEOTIFF/{state_name}/{county_name}/clipped.TIF')
-    vat_path = os.path.expanduser(f'~/Downloads/CountyGEOTIFF/{state_name}/{county_name}/clipped.TIF.vat.dbf')
+    # TODO: Input directory for TIF files
+    tif_path = os.path.expanduser(f'YOUR_DIRECTORY_NAME')
+    # TODO: Input directory for VAT files
+    vat_path = os.path.expanduser(f'YOUR_DIRECTORY_NAME')
 
     if not os.path.exists(tif_path) or not os.path.exists(vat_path):
         return None, None, None

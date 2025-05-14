@@ -12,104 +12,13 @@ import os
 from shapely.geometry import Polygon, MultiPolygon
 from pyproj import Transformer
 
-# Add a helper function to format numbers with commas
-def format_number(num):
-    return "{:,}".format(num)
+from FileHandler import FileHandler
+from HELPER_FUNCTIONS import HELPER_FUNCTIONS
+from Style_Guides import Style_Guides
 
-# Load the shapefile
-# TODO: Load shapefile into script.
+filtered_gdf,df_crops,df_locations = FileHandler.loadFiles()
 
-# Normalize county names to lowercase
-gdf['NAME'] = gdf['NAME'].str.lower()
-
-# Add a capitalized county names column for display
-gdf['NAME_DISPLAY'] = gdf['NAME'].str.title()
-
-# Load the CSV file
-# TODO: Load file with locations of border crossing and major cities
-
-# Load the feather file
-# TODO: Load pixel counts file from CroplandCROS application
-
-# county names to lowercase
-df_crops['County'] = df_crops['County'].str.lower()
-
-# Create a mapping of state FIPS codes to state names
-state_fips_codes = {
-    '48': 'Texas',
-    '06': 'California',
-    '04': 'Arizona',
-    '35': 'New Mexico',
-    '40': 'Oklahoma',
-    '22': 'Louisiana',
-    '05': 'Arkansas'
-}
-
-gdf['STATE_NAME'] = gdf['STATEFP'].map(state_fips_codes)
-
-# Filter counties for the specified states
-filtered_gdf = gdf[gdf['STATE_NAME'].isin(state_fips_codes.values())]
-
-# Function to create a buffer ring
-def create_ring(lat, lon, inner_radius_km, outer_radius_km, num_points=360):
-    angles = np.linspace(0, 2 * np.pi, num_points)
-    inner_coords = [(lon + (inner_radius_km / 111) * np.cos(a), lat + (inner_radius_km / 111) * np.sin(a)) for a in angles]
-    outer_coords = [(lon + (outer_radius_km / 111) * np.cos(a), lat + (outer_radius_km / 111) * np.sin(a)) for a in angles]
-    return inner_coords + outer_coords[::-1] + [inner_coords[0]]
-
-# Function to read crop pixels from TIF and VAT DBF files
-def read_crop_pixels(state_name, county_name, selected_crop):
-    # TODO: Input directory for TIF files
-    tif_path = os.path.expanduser(f'YOUR_DIRECTORY_NAME')
-    # TODO: Input directory for VAT files
-    vat_path = os.path.expanduser(f'YOUR_DIRECTORY_NAME')
-
-    if not os.path.exists(tif_path) or not os.path.exists(vat_path):
-        return None, None, None
-
-    with rasterio.open(tif_path) as src:
-        transform = src.transform
-        img = src.read(1)
-
-    vat_df = gpd.read_file(vat_path)
-
-    # Filter the VAT DataFrame for the selected crop type
-    vat_df = vat_df[vat_df['Class_Name'] == selected_crop]
-
-    return img, transform, vat_df
-
-# Function to convert Web Mercator to geographic coordinates
-def convert_to_geographic(coords):
-    transformer = Transformer.from_crs("epsg:3857", "epsg:4326", always_xy=True)
-    geographic_coords = [transformer.transform(coord[0], coord[1]) for coord in coords]
-    return geographic_coords
-
-# Function to validate geographic coordinates
-def validate_coordinates(coords):
-    for lon, lat in coords:
-        if not (-125 <= lon <= -65) or not (25 <= lat <= 50):
-            return False
-    return True
-
-# Function to calculate zoom level based on distance
-def calculate_zoom_level(distance):
-    if distance <= 20:
-        return 11
-    elif distance <= 50:
-        return 9
-    elif distance <= 100:
-        return 8
-    elif distance <= 200:
-        return 7
-    elif distance <= 400:
-        return 6
-    elif distance <= 800:
-        return 5
-    elif distance <= 1600:
-        return 4
-    else:
-        return 2
-
+#APP CREATED HERE
 # Create the Dash app with a Bootstrap theme
 app = dash.Dash(__name__, external_stylesheets=[dbc.themes.YETI], suppress_callback_exceptions=True)
 app.config.suppress_callback_exceptions = True
@@ -117,121 +26,18 @@ app._dev_tools["dev_tools_ui"] = False  # disable the debug icon
 app._dev_tools["dev_tools_props_check"] = False  # disable the property check toolbar
 
 # Sidebar style
-SIDEBAR_STYLE = {
-    "position": "fixed",
-    "top": 0,
-    "left": 0,
-    "bottom": 0,
-    "width": "16rem",
-    "padding": "2rem 1rem",
-    "background-color": "#f8f9fa",
-}
+SIDEBAR_STYLE = Style_Guides.get_sidebar_style()
 
 # Content style
-CONTENT_STYLE = {
-    "margin-left": "18rem",
-    "margin-right": "2rem",
-    "padding": "2rem 1rem",
-}
+CONTENT_STYLE = Style_Guides.get_content_style()
 
 # Define the sidebar layout
-sidebar = html.Div(
-    [
-        html.H2("Controls", className="display-4"),
-        html.Hr(),
-        html.P(
-            "Choose crop type:", className="lead"
-        ),
-        dcc.Dropdown(
-            id='crop-dropdown',
-            options=[{'label': crop, 'value': crop} for crop in df_crops['CropType'].unique()],
-            value=df_crops['CropType'].unique()[0],
-            style={'width': '100%'}
-        ),
-        html.Hr(),
-        html.P(
-            "Select a Location:", className="lead"
-        ),
-        dcc.Dropdown(
-            id='border-crossing-dropdown',
-            options=[{'label': row['port_name'], 'value': i} for i, row in df_locations.iterrows()],
-            placeholder="Select a border crossing",
-            style={'width': '100%'}
-        ),
-        html.Hr(),
-        html.P(
-            "Distance of Travel (minutes):", className="lead"
-        ),
-        dcc.Slider(
-            id='distance-slider',
-            min=0,
-            max=240,
-            step=30,
-            value=60,
-            marks={i: f"{i}" for i in range(0, 241, 60)}  # Adjusted to show fewer marks
-        ),
-        html.Hr(),
-        html.P(
-            "Select a county:", className="lead"
-        ),
-        dcc.Dropdown(
-            id='county-dropdown',
-            options=[{'label': f"{row['NAME_DISPLAY']}, {row['STATE_NAME']}", 'value': row['GEOID']} for i, row in filtered_gdf.iterrows()],
-            placeholder="Select a county",
-            style={'width': '100%'}
-        ),
-    ],
-    style=SIDEBAR_STYLE,
-)
+sidebar = Style_Guides.get_sidebar_layout(df_crops,df_locations,filtered_gdf)
 
 # Define the main content layout with tabs
-content = html.Div(
-    [
-        dbc.Tabs(
-            [
-                dbc.Tab(label='Map', tab_id='tab-map', children=[
-                    dcc.Loading(
-                        id="loading-map",
-                        type="default",
-                        children=[
-                            dcc.Graph(id='map-graph'),  # Removed clickmode
-                            html.Div(id='farm-info', style={'padding': '2rem 1rem'})
-                        ]
-                    )
-                ]),
-                dbc.Tab(label='County Details', tab_id='tab-county-details', children=[
-                    dcc.Loading(
-                        id="loading-county-details",
-                        type="default",
-                        children=[
-                            dcc.Graph(id='county-graph', style={'height': '80vh'})
-                        ]
-                    )
-                ]),
-                dbc.Tab(label='Instructions', tab_id='tab-instructions', children=[
-                    html.Div(
-                        [
-                            html.H3("How to Use the Dashboard"),
-                            html.Ol([
-                                html.Li("Choose a crop type from the 'Choose crop type' dropdown. This will then show the amount of the crop by county."),
-                                html.Li("Select a border crossing or city from the 'Select a Location' dropdown."),
-                                html.Li("Adjust the travel distance using the 'Distance of Travel (minutes)' slider."),
-                                html.Li("Select a county by clicking any of them or from the 'Select a County' dropdown."),
-                                html.Li("Switch between the 'Map' and 'County Details' tabs to view the relevant information."),
-                            ])
-                        ],
-                        style={'padding': '2rem 1rem'}
-                    )
-                ]),
-            ],
-            id='tabs',
-            active_tab='tab-map'
-        )
-    ],
-    style=CONTENT_STYLE,
-)
-
+content = Style_Guides.get_main_content_style()
 # Define the layout of the app
+
 app.layout = html.Div([sidebar, content])
 
 @app.callback(
@@ -256,7 +62,7 @@ def update_map(selected_crop, selected_crossing, distance):
         # Calculate buffer distances
         speed_kmh = 60
         straight_line_distance_km = (distance / 60) * speed_kmh
-        zoom = calculate_zoom_level(straight_line_distance_km)
+        zoom = HELPER_FUNCTIONS.calculate_zoom_level(straight_line_distance_km)
 
         # Define radii for buffer rings based on the given radius
         r_high_inner = 0.8 * straight_line_distance_km
@@ -267,9 +73,9 @@ def update_map(selected_crop, selected_crossing, distance):
         r_low_outer_2 = 1.4 * straight_line_distance_km
 
         # Add buffer rings
-        ring_coords_low_1 = create_ring(center['lat'], center['lon'], r_low_inner_1, r_low_outer_1)
-        ring_coords_high = create_ring(center['lat'], center['lon'], r_high_inner, r_high_outer)
-        ring_coords_low_2 = create_ring(center['lat'], center['lon'], r_low_inner_2, r_low_outer_2)
+        ring_coords_low_1 = HELPER_FUNCTIONS.create_ring(center['lat'], center['lon'], r_low_inner_1, r_low_outer_1)
+        ring_coords_high = HELPER_FUNCTIONS.create_ring(center['lat'], center['lon'], r_high_inner, r_high_outer)
+        ring_coords_low_2 = HELPER_FUNCTIONS.create_ring(center['lat'], center['lon'], r_low_inner_2, r_low_outer_2)
 
     else:
         center = {"lat": 31.9686, "lon": -99.9018}
@@ -434,7 +240,7 @@ def update_county_graph(selected_county, selected_crop):
         state_name = county_gdf['STATE_NAME'].values[0]
         county_name = county_gdf['NAME'].values[0]
 
-        img, transform, vat_df = read_crop_pixels(state_name, county_name, selected_crop)
+        img, transform, vat_df = HELPER_FUNCTIONS.read_crop_pixels(state_name, county_name, selected_crop)
 
         if img is not None and not vat_df.empty:
             crop_coords = []
@@ -446,8 +252,8 @@ def update_county_graph(selected_county, selected_crop):
 
             if crop_coords:
                 # Convert to geographic coordinates
-                geographic_coords = convert_to_geographic(crop_coords)
-                valid_coords = validate_coordinates(geographic_coords)
+                geographic_coords = HELPER_FUNCTIONS.convert_to_geographic(crop_coords)
+                valid_coords = HELPER_FUNCTIONS.validate_coordinates(geographic_coords)
                 if not valid_coords:
                     print("Error: Coordinates are out of the expected range.")
 

@@ -1,0 +1,4 @@
+scipy
+jsonschema  # json is part of Python's standard library; jsonschema can be useful for JSON validation
+numpy
+rasterio

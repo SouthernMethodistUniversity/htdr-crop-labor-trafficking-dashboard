@@ -1,0 +1,36 @@
+./CountyGEOTIFF/Arkansas/St. Francis/clipped.TIF
+./CountyGEOTIFF/Arizona/Pima/clipped.TIF
+./CountyGEOTIFF/Arizona/Cochise/clipped.TIF
+./CountyGEOTIFF/Arizona/Coconino/clipped.TIF
+./CountyGEOTIFF/Arizona/Yavapai/clipped.TIF
+./CountyGEOTIFF/Arizona/Graham/clipped.TIF
+./CountyGEOTIFF/Arizona/Gila/clipped.TIF
+./CountyGEOTIFF/Arizona/Yuma/clipped.TIF
+./CountyGEOTIFF/Arizona/Navajo/clipped.TIF
+./CountyGEOTIFF/Arizona/Mohave/clipped.TIF
+./CountyGEOTIFF/Arizona/La Paz/clipped.TIF
+./CountyGEOTIFF/Arizona/Pinal/clipped.TIF
+./CountyGEOTIFF/Arizona/Maricopa/clipped.TIF
+./CountyGEOTIFF/Arizona/Apache/clipped.TIF
+./CountyGEOTIFF/Louisiana/St. Tammany/clipped.TIF
+./CountyGEOTIFF/Texas/McLennan/clipped.TIF
+./CountyGEOTIFF/Texas/Brewster/clipped.TIF
+./CountyGEOTIFF/Texas/Dallam/clipped.TIF
+./CountyGEOTIFF/Texas/Williamson/clipped.TIF
+./CountyGEOTIFF/Texas/Cherokee/clipped.TIF
+./CountyGEOTIFF/Texas/Cameron/clipped.TIF
+./CountyGEOTIFF/Texas/Harris/clipped.TIF
+./CountyGEOTIFF/Texas/Montgomery/clipped.TIF
+./CountyGEOTIFF/Texas/Reeves/clipped.TIF
+./CountyGEOTIFF/Texas/Erath/clipped.TIF
+./CountyGEOTIFF/Texas/Colorado/clipped.TIF
+./CountyGEOTIFF/Texas/Matagorda/clipped.TIF
+./CountyGEOTIFF/Texas/Coryell/clipped.TIF
+./CountyGEOTIFF/Texas/Brazoria/clipped.TIF
+./CountyGEOTIFF/Texas/Jeff Davis/clipped.TIF
+./CountyGEOTIFF/Texas/Webb/clipped.TIF
+./CountyGEOTIFF/Texas/Hidalgo/clipped.TIF
+./CountyGEOTIFF/Texas/Hudspeth/clipped.TIF
+./CountyGEOTIFF/California/Sacramento/clipped.TIF
+./CountyGEOTIFF/California/Stanislaus/clipped.TIF
+./CountyGEOTIFF/California/Sonoma/clipped.TIF

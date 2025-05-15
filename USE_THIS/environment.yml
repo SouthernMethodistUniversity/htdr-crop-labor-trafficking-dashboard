@@ -1,0 +1,10 @@
+name: myenv
+channels:
+  - conda-forge
+  - defaults
+dependencies:
+  - python=3.10
+  - scipy
+  - jsonschema  # json is part of Python's standard library; jsonschema can be useful for JSON validation
+  - numpy
+  - rasterio
